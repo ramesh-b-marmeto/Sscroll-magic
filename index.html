@@ -1,101 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Horizontal Scroll Gallery</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-    }
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+  }
 
-    .spacer {
-      height: 100vh;
-      background: #eee;
-    }
+  .spacer {
+    height: 100vh;
+    background: #eee;
+  }
 
-    /* SECTION WRAPPER */
-    .scroll-section {
-      position: relative;
-      background: #f0f0f0;
-      padding: 60px 20px;
-    }
+  .horizontal-scroll-section {
+    position: relative;
+    width: 100%;
+  }
 
-    /* STICKY SCROLL AREA */
-    .scroll-box {
-      overflow: hidden;
-      width: 100%;
-    }
+  .horizontal-scroll-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    background: red;
+    overflow: hidden;
+    z-index: 1;
+  }
 
-    /* SCROLLING INNER CONTAINER */
-    .scroll-content {
-      display: flex;
-      gap: 10px;
-      height: auto;
-    }
+  .scroll-box {
+    display: flex;
+    gap: 20px;
+    padding: 40px;
+    will-change: transform;
+  }
 
-    .scroll-item {
-      flex: 0 0 auto;
-      width: 400px;
-      height: 400px;
-      background: #a1c4fd;
-      text-align: center;
-      line-height: 200px;
-      font-size: 1.2rem;
-      border-radius: 8px;
-    }
-  </style>
-</head>
-<body>
+  .scroll-item {
+    flex: 0 0 auto;
+    width: 400px;
+    height: 400px;
+    background: #a1c4fd;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 400px;
+    font-size: 2rem;
+  }
+</style>
 
-  <div class="spacer">Scroll down</div>
+<div class="spacer">Scroll down</div>
 
-  <section class="scroll-section" id="scrollSection">
-    <h2>My Horizontal Gallery</h2>
+<section class="horizontal-scroll-section" id="scrollSection">
+  <div class="horizontal-scroll-inner" id="scrollInner">
     <div class="scroll-box" id="scrollBox">
-      <div class="scroll-content" id="scrollContent">
-        <div class="scroll-item">1</div>
-        <div class="scroll-item">2</div>
-        <div class="scroll-item">3</div>
-        <div class="scroll-item">4</div>
-        <div class="scroll-item">5</div>
-        <div class="scroll-item">6</div>
-        <div class="scroll-item">7</div>
-        <div class="scroll-item">8</div>
-      </div>
+      <div class="scroll-item">1</div>
+      <div class="scroll-item">2</div>
+      <div class="scroll-item">3</div>
+      <div class="scroll-item">4</div>
+      <div class="scroll-item">5</div>
+      <div class="scroll-item">6</div>
+      <div class="scroll-item">7</div>
+      <div class="scroll-item">8</div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <div class="spacer">Scroll more</div>
+<div class="spacer">Scroll more</div>
 
-  <!-- ScrollMagic -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/ScrollMagic.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/plugins/debug.addIndicators.min.js"></script>
+<script>
+  const section = document.getElementById("scrollSection");
+  const scrollInner = document.getElementById("scrollInner");
+  const scrollBox = document.getElementById("scrollBox");
 
-  <script>
-    const controller = new ScrollMagic.Controller();
+  const scrollLength = scrollBox.scrollWidth - window.innerWidth;
 
-    const scrollBox = document.getElementById('scrollBox');
-    const scrollContent = document.getElementById('scrollContent');
-    const scrollSection = document.getElementById('scrollSection');
+  // Set the total scrollable height of the section
+  section.style.height = scrollLength + window.innerHeight + "px";
 
-    // Total horizontal scroll distance
-    const totalScrollX = scrollContent.scrollWidth - scrollBox.clientWidth;
+  window.addEventListener("scroll", () => {
+    const sectionTop = section.offsetTop;
+    const sectionHeight = section.offsetHeight;
+    const scrollY = window.scrollY;
 
-    // Set dynamic scene height based on scroll distance
-    const sceneDuration = totalScrollX;
-
-    new ScrollMagic.Scene({
-      triggerElement: scrollSection,
-      triggerHook: 0.5,
-      duration: sceneDuration
-    })
-    .setPin(scrollSection)
-    .on("progress", function(e) {
-      scrollBox.scrollLeft = e.progress * totalScrollX;
-    })
-    .addIndicators()
-    .addTo(controller);
-  </script>
-</body>
-</html>
+    if (scrollY >= sectionTop && scrollY <= sectionTop + scrollLength) {
+      // Pin active
+      scrollInner.style.position = "fixed";
+      scrollInner.style.top = "0";
+      scrollBox.style.transform = `translateX(-${scrollY - sectionTop}px)`;
+    } else if (scrollY > sectionTop + scrollLength) {
+      // After scroll zone
+      scrollInner.style.position = "absolute";
+      scrollInner.style.top = scrollLength + "px";
+    } else {
+      // Before scroll zone
+      scrollInner.style.position = "absolute";
+      scrollInner.style.top = "0";
+      scrollBox.style.transform = `translateX(0)`;
+    }
+  });
+</script>
